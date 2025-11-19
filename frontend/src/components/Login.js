@@ -48,7 +48,7 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', role);
-        navigate('/machines');
+        navigate('/dashboard');
       } else {
         setError(data.message || 'Login failed');
       }
