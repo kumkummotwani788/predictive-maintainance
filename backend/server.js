@@ -2,6 +2,7 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const authRoutes = require('./auth.routes');
+const predictionRoutes = require('./prediction.routes');
 require('dotenv').config();
 
 const app = express();
@@ -40,6 +41,9 @@ app.get('/health', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Prediction routes (ML model inference)
+app.use('/api/prediction', predictionRoutes);
 
 // Protected Routes
 app.get('/api/machines', async (req, res) => {

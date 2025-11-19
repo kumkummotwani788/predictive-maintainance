@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import MachineTable from './components/MachineTable';
+import MachineDashboard from './components/MachineDashboard';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -20,6 +21,14 @@ function App() {
             element={
               <PrivateRoute>
                 <MachineTable />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <MachineDashboard />
               </PrivateRoute>
             }
           />

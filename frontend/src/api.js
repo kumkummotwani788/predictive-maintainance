@@ -26,3 +26,16 @@ export const deleteMachine = async (id) => {
   const response = await axios.delete(`${API_URL}/machines/${id}`);
   return response.data;
 };
+
+// Prediction and Simulation APIs
+export const predictMachineStatus = async (sensorData) => {
+  const response = await axios.post(`${API_URL}/prediction/predict`, sensorData);
+  return response.data;
+};
+
+export const runMachineSimulation = async (machineType = 'M') => {
+  const response = await axios.post(`${API_URL}/prediction/simulate`, {
+    machineType
+  });
+  return response.data;
+};
