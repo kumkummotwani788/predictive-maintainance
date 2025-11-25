@@ -1,25 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  Box,
+  CircularProgress,
+  Grid,
+  IconButton,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Typography,
-  Box,
-  CircularProgress,
-  IconButton
+  Typography
 } from '@mui/material';
-import { ExitToApp as ExitToAppIcon } from '@mui/icons-material';
+import {
+  ExitToApp as ExitToAppIcon
+} from '@mui/icons-material';
 import { getMachines } from '../api';
+import MachineSimulator from './MachineSimulator';
+import AutoAlertSimulator from './AutoAlertSimulator';
 
 const MachineTable = () => {
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [simulatorOpen, setSimulatorOpen] = useState(false);
   const navigate = useNavigate();
   const userRole = localStorage.getItem('role');
 
@@ -102,11 +108,10 @@ const MachineTable = () => {
         <Typography variant="h4" component="h1">
           Predictive Maintenance Dashboard
         </Typography>
-        <Box display="flex" alignItems="center">
+        <Box display="flex" alignItems="center" gap={2}>
           <Typography 
             variant="subtitle1" 
             sx={{ 
-              mr: 2, 
               backgroundColor: 'primary.light',
               padding: '4px 12px',
               borderRadius: '16px',
@@ -121,73 +126,104 @@ const MachineTable = () => {
         </Box>
       </Box>
 
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Total Machines: {machines.length}
-      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} lg={8}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Total Machines: {machines.length}
+          </Typography>
 
-      {machines.length === 0 ? (
-        <Typography variant="h6" textAlign="center" sx={{ mt: 4 }}>
-          No machines available for your role.
-        </Typography>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Product ID</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Air Temperature (K)</TableCell>
-                <TableCell>Process Temperature (K)</TableCell>
-                <TableCell>Rotational Speed (rpm)</TableCell>
-                <TableCell>Torque (Nm)</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {machines.map((machine, index) => (
-                <TableRow 
-                  key={index} 
-                  hover
-                  sx={{
-                    backgroundColor: 
-                      machine['Type'] === 'H' ? '#fff3e0' :
-                      machine['Type'] === 'M' ? '#e8f5e9' :
-                      machine['Type'] === 'L' ? '#e3f2fd' :
-                      'inherit'
-                  }}
-                >
-                  <TableCell>{machine['Product ID'] || machine.productId}</TableCell>
-                  <TableCell>
-                    <Box
+          {machines.length === 0 ? (
+            <Typography variant="h6" textAlign="center" sx={{ mt: 4 }}>
+              No machines available for your role.
+            </Typography>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Product ID</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Air Temperature (K)</TableCell>
+                    <TableCell>Process Temperature (K)</TableCell>
+                    <TableCell>Rotational Speed (rpm)</TableCell>
+                    <TableCell>Torque (Nm)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {machines.map((machine, index) => (
+                    <TableRow
+                      key={index}
+                      hover
                       sx={{
-                        display: 'inline-block',
-                        px: 1,
-                        py: 0.5,
-                        borderRadius: 1,
-                        backgroundColor: 
-                          machine['Type'] === 'H' ? '#ffebee' :
-                          machine['Type'] === 'M' ? '#e8f5e9' :
-                          machine['Type'] === 'L' ? '#e3f2fd' :
-                          'inherit',
-                        color:
-                          machine['Type'] === 'H' ? '#c62828' :
-                          machine['Type'] === 'M' ? '#2e7d32' :
-                          machine['Type'] === 'L' ? '#1565c0' :
-                          'inherit'
+                        backgroundColor:
+                          machine['Type'] === 'H'
+                            ? '#fff3e0'
+                            : machine['Type'] === 'M'
+                            ? '#e8f5e9'
+                            : machine['Type'] === 'L'
+                            ? '#e3f2fd'
+                            : 'inherit'
                       }}
                     >
-                      {machine['Type'] || machine.type}
-                    </Box>
-                  </TableCell>
-                  <TableCell>{machine['Air temperature [K]'] || machine.airTemp}</TableCell>
-                  <TableCell>{machine['Process temperature [K]'] || machine.processTemp}</TableCell>
-                  <TableCell>{machine['Rotational speed [rpm]'] || machine.rotationalSpeed}</TableCell>
-                  <TableCell>{machine['Torque [Nm]'] || machine.torque}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+                      <TableCell>
+                        {machine['Product ID'] || machine.productId}
+                      </TableCell>
+                      <TableCell>
+                        <Box
+                          sx={{
+                            display: 'inline-block',
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 1,
+                            backgroundColor:
+                              machine['Type'] === 'H'
+                                ? '#ffebee'
+                                : machine['Type'] === 'M'
+                                ? '#e8f5e9'
+                                : machine['Type'] === 'L'
+                                ? '#e3f2fd'
+                                : 'inherit',
+                            color:
+                              machine['Type'] === 'H'
+                                ? '#c62828'
+                                : machine['Type'] === 'M'
+                                ? '#2e7d32'
+                                : machine['Type'] === 'L'
+                                ? '#1565c0'
+                                : 'inherit'
+                          }}
+                        >
+                          {machine['Type'] || machine.type}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        {machine['Air temperature [K]'] || machine.airTemp}
+                      </TableCell>
+                      <TableCell>
+                        {machine['Process temperature [K]'] || machine.processTemp}
+                      </TableCell>
+                      <TableCell>
+                        {machine['Rotational speed [rpm]'] || machine.rotationalSpeed}
+                      </TableCell>
+                      <TableCell>
+                        {machine['Torque [Nm]'] || machine.torque}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Grid>
+        <Grid item xs={12} lg={4}>
+          <AutoAlertSimulator machines={machines} userRole={userRole} />
+        </Grid>
+      </Grid>
+
+      <MachineSimulator 
+        open={simulatorOpen} 
+        onClose={() => setSimulatorOpen(false)} 
+      />
     </Box>
   );
 };
