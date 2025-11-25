@@ -1,14 +1,23 @@
 const express = require('express');
+const axios = require('axios');
 const router = express.Router();
 
-// Simulate predictions (in production, this would call Python ML models via subprocess or API)
-// For now, we'll implement a mock prediction based on sensor data thresholds
+// Python ML API Server URL
+const ML_API_URL = process.env.ML_API_URL || 'http://localhost:5001/api';
+const USE_ML_API = process.env.USE_ML_API !== 'false'; // Default to true
+
+// Fallback to mock predictions if ML API is unavailable
+function useMockPredictions(req, res, isFallback = false) {
+  if (isFallback) {
+    console.warn('ML API unavailable, falling back to mock predictions');
+  }
+}
 
 /**
  * Predict RUL and Failure Type based on sensor readings
  * POST /api/prediction/predict
  */
-router.post('/predict', (req, res) => {
+router.post('/predict', async (req, res) => {
   try {
     const sensorData = req.body;
     
@@ -20,13 +29,32 @@ router.post('/predict', (req, res) => {
       });
     }
 
-    // Mock prediction logic based on sensor thresholds
+    // Try to use Python ML API
+    if (USE_ML_API) {
+      try {
+        const response = await axios.post(`${ML_API_URL}/predict`, 
+          { sensor_data: sensorData },
+          { timeout: 5000 }
+        );
+        
+        return res.json({
+          ...response.data,
+          timestamp: new Date().toISOString(),
+          source: 'ml_api'
+        });
+      } catch (mlError) {
+        console.warn('ML API error, falling back to mock predictions:', mlError.message);
+      }
+    }
+
+    // Fallback: Mock prediction logic based on sensor thresholds
     const predictions = generatePredictions(sensorData);
     
     res.json({
       ...predictions,
       success: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      source: 'mock'
     });
 
   } catch (error) {
@@ -42,7 +70,7 @@ router.post('/predict', (req, res) => {
  * Run a simulation with random sensor data
  * POST /api/prediction/simulate
  */
-router.post('/simulate', (req, res) => {
+router.post('/simulate', async (req, res) => {
   try {
     const { machineType = 'M' } = req.body;
 
@@ -54,7 +82,25 @@ router.post('/simulate', (req, res) => {
       });
     }
 
-    // Generate random sensor data based on machine type
+    // Try to use Python ML API
+    if (USE_ML_API) {
+      try {
+        const response = await axios.post(`${ML_API_URL}/simulate`,
+          { machineType },
+          { timeout: 5000 }
+        );
+        
+        return res.json({
+          ...response.data,
+          timestamp: new Date().toISOString(),
+          source: 'ml_api'
+        });
+      } catch (mlError) {
+        console.warn('ML API error, falling back to mock predictions:', mlError.message);
+      }
+    }
+
+    // Fallback: Generate random sensor data based on machine type
     const sensorData = generateRandomSensorData(machineType);
     
     // Generate predictions based on simulated data
@@ -65,7 +111,8 @@ router.post('/simulate', (req, res) => {
       sensor_data: sensorData,
       success: true,
       timestamp: new Date().toISOString(),
-      machine_type: machineType
+      machine_type: machineType,
+      source: 'mock'
     });
 
   } catch (error) {

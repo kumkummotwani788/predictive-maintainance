@@ -1,8 +1,3 @@
-"""
-Create missing encoders for the ML pipeline
-Run this once to generate the encoder files
-"""
-
 import joblib
 from sklearn.preprocessing import LabelEncoder
 from pathlib import Path
