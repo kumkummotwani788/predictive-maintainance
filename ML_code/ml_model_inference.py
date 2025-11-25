@@ -13,9 +13,9 @@ MODEL_DIR = Path(__file__).parent / "trained_models"
 MODEL_DIR.mkdir(exist_ok=True)
 
 MODELS = {
-    'rul_model': MODEL_DIR / 'rul_regressor.pkl',
-    'failure_model': MODEL_DIR / 'failure_classifier.pkl',
-    'scaler': MODEL_DIR / 'feature_scaler.pkl',
+    'rul_model': MODEL_DIR / 'rul_rf_model.pkl',      
+    'failure_model': MODEL_DIR / 'failure_type_model.h5', 
+    'scaler': MODEL_DIR / 'scaler.pkl',                  
     'type_encoder': MODEL_DIR / 'type_encoder.pkl',
     'failure_encoder': MODEL_DIR / 'failure_encoder.pkl',
 }
